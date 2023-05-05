@@ -4,19 +4,23 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace LifeSimulation
+namespace DotAndSquares
 {
     public class Game1 : Game
     {
-        private readonly GraphicsDeviceManager _graphics;
+        private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Dot _dot;
-        private List<Square> _squares;
-        private Random _random;
+        private Dot dot;
+        private List<Square> squares;
+        private Random random;
 
-        private double SquareSpawnTimer { get; set; }
-        private const double SquareSpawnInterval = 2000;
+        private double squareSpawnTimer;
+        private double squareSpawnInterval = 2000;
+        
+        private ChartWindow _chartWindow;
+        private int _eatenItemsCount;
+        private double _elapsedTime;
 
         public Game1()
         {
@@ -25,15 +29,24 @@ namespace LifeSimulation
             IsMouseVisible = true;
         }
 
+        // Zaktualizujemy metodę Initialize:
         protected override void Initialize()
         {
             base.Initialize();
 
-            _dot = new Dot(_graphics.GraphicsDevice);
-            _squares = new List<Square>();
-            _random = new Random();
-            SquareSpawnTimer = 0;
+            dot = new Dot(_graphics.GraphicsDevice);
+            squares = new List<Square>();
+            random = new Random();
+            squareSpawnTimer = 0;
+
+            // Inicjalizujemy okno z wykresem
+            _chartWindow = new ChartWindow();
+            _chartWindow.Show();
+
+            _eatenItemsCount = 0;
+            _elapsedTime = 0;
         }
+
 
         protected override void LoadContent()
         {
@@ -45,20 +58,32 @@ namespace LifeSimulation
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            _dot.Update(gameTime);
+            dot.Update(gameTime);
 
-            foreach (var square in _squares)
+            foreach (var square in squares)
             {
                 square.Update(gameTime);
             }
 
-            _squares.RemoveAll(square => _dot.Bounds.Intersects(square.Bounds));
+            squares.RemoveAll(square => dot.Bounds.Intersects(square.Bounds));
 
-            SquareSpawnTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (SquareSpawnTimer > SquareSpawnInterval)
+            squareSpawnTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (squareSpawnTimer > squareSpawnInterval)
             {
                 SpawnSquare();
-                SquareSpawnTimer = 0;
+                squareSpawnTimer = 0;
+            }
+
+            base.Update(gameTime);
+            // Aktualizujemy liczbę zjedzonych rzeczy
+            int removedSquaresCount = squares.RemoveAll(square => dot.Bounds.Intersects(square.Bounds));
+            _eatenItemsCount += removedSquaresCount;
+
+            // Aktualizujemy wykres
+            if (removedSquaresCount > 0)
+            {
+                _elapsedTime += gameTime.ElapsedGameTime.TotalMilliseconds;
+                _chartWindow.AddDataPoint(_elapsedTime / 1000, _eatenItemsCount); // Dodajemy czas w sekundach
             }
 
             base.Update(gameTime);
@@ -69,8 +94,8 @@ namespace LifeSimulation
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-            _dot.Draw(_spriteBatch);
-            foreach (var square in _squares)
+            dot.Draw(_spriteBatch);
+            foreach (var square in squares)
             {
                 square.Draw(_spriteBatch);
             }
@@ -81,10 +106,10 @@ namespace LifeSimulation
 
         private void SpawnSquare()
         {
-            int x = _random.Next(0, _graphics.PreferredBackBufferWidth - Square.Size);
-            int y = _random.Next(0, _graphics.PreferredBackBufferHeight - Square.Size);
+            int x = random.Next(0, _graphics.PreferredBackBufferWidth - Square.Size);
+            int y = random.Next(0, _graphics.PreferredBackBufferHeight - Square.Size);
 
-            _squares.Add(new Square(_graphics.GraphicsDevice, new Vector2(x, y)));
+            squares.Add(new Square(_graphics.GraphicsDevice, new Vector2(x, y)));
         }
     }
 }
