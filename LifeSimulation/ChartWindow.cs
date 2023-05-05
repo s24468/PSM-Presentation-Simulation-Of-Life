@@ -10,6 +10,7 @@ namespace DotAndSquares
     {
         private LineSeries _series;
         private PlotView _plotView;
+        public int TotalEatenSquares { get; set; }
 
         public ChartWindow()
         {
@@ -38,9 +39,17 @@ namespace DotAndSquares
             plotModel.Axes.Add(yAxis);
         }
 
-        public void AddDataPoint(double time, double itemCount)
+        // public void AddDataPoint(double time, double itemCount)
+        // {
+        //     _series.Points.Add(new DataPoint(time, itemCount));
+        //     _plotView.InvalidatePlot(true);
+        // }
+        public void AddDataPoint(int eatenSquares, double gameTime)
         {
-            _series.Points.Add(new DataPoint(time, itemCount));
+            // Dodajemy punkt danych do serii wykresu
+            _series.Points.Add(new DataPoint(gameTime, eatenSquares));
+
+            // Aktualizujemy wykres
             _plotView.InvalidatePlot(true);
         }
     }

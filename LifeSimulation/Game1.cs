@@ -40,6 +40,8 @@ namespace DotAndSquares
 
             // Inicjalizujemy okno z wykresem
             _chartWindow = new ChartWindow();
+            
+            _chartWindow.TotalEatenSquares = 0;
             _chartWindow.Show();
 
             _eatenItemsCount = 0;
@@ -68,11 +70,14 @@ namespace DotAndSquares
             squares.RemoveAll(square => dot.Bounds.Intersects(square.Bounds));
             int removedCount = initialCount - squares.Count;
 
+            // if (removedCount > 0)
+            // {
+            //     _chartWindow.AddDataPoint(removedCount, gameTime.TotalGameTime.TotalSeconds);
+            // }
             if (removedCount > 0)
             {
-                _chartWindow.AddDataPoint(removedCount, gameTime.TotalGameTime.TotalSeconds);
+                _chartWindow.AddDataPoint(_chartWindow.TotalEatenSquares += removedCount, gameTime.TotalGameTime.TotalSeconds);
             }
-
             squareSpawnTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
             if (squareSpawnTimer > squareSpawnInterval)
             {
