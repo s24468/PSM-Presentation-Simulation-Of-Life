@@ -1,3 +1,2 @@
-﻿
-using var game = new LifeSimulation.Game1();
+﻿using var game = new DotAndSquares.Game1();
 game.Run();
