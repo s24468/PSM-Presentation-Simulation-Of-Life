@@ -16,7 +16,7 @@ public class Dot
     {
         this.graphicsDevice = graphicsDevice;
         position = new Vector2(graphicsDevice.Viewport.Width / 2, graphicsDevice.Viewport.Height / 2);
-        velocity = new Vector2(2, 2);
+        velocity = new Vector2(4, 4);//z 2 2
         texture = CreateTexture(graphicsDevice);
     }
 

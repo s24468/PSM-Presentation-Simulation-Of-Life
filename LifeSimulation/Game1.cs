@@ -16,8 +16,7 @@ namespace DotAndSquares
         private Random random;
 
         private double squareSpawnTimer;
-        private double squareSpawnInterval = 2000;
-        
+        private double squareSpawnInterval = 1000;
         private ChartWindow _chartWindow;
         private int _eatenItemsCount;
         private double _elapsedTime;
@@ -65,25 +64,20 @@ namespace DotAndSquares
                 square.Update(gameTime);
             }
 
+            int initialCount = squares.Count;
             squares.RemoveAll(square => dot.Bounds.Intersects(square.Bounds));
+            int removedCount = initialCount - squares.Count;
+
+            if (removedCount > 0)
+            {
+                _chartWindow.AddDataPoint(removedCount, gameTime.TotalGameTime.TotalSeconds);
+            }
 
             squareSpawnTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
             if (squareSpawnTimer > squareSpawnInterval)
             {
                 SpawnSquare();
                 squareSpawnTimer = 0;
-            }
-
-            base.Update(gameTime);
-            // Aktualizujemy liczbę zjedzonych rzeczy
-            int removedSquaresCount = squares.RemoveAll(square => dot.Bounds.Intersects(square.Bounds));
-            _eatenItemsCount += removedSquaresCount;
-
-            // Aktualizujemy wykres
-            if (removedSquaresCount > 0)
-            {
-                _elapsedTime += gameTime.ElapsedGameTime.TotalMilliseconds;
-                _chartWindow.AddDataPoint(_elapsedTime / 1000, _eatenItemsCount); // Dodajemy czas w sekundach
             }
 
             base.Update(gameTime);

@@ -1,5 +1,6 @@
 ﻿using System.Windows.Forms;
 using OxyPlot;
+using OxyPlot.Axes;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
 
@@ -14,6 +15,7 @@ namespace DotAndSquares
         {
             InitializeComponent();
             InitializePlotModel();
+           
         }
 
         private void InitializePlotModel()
@@ -29,9 +31,14 @@ namespace DotAndSquares
 
             plotModel.Series.Add(_series);
             _plotView.Model = plotModel;
+            var xAxis = new LinearAxis { Position = AxisPosition.Bottom, Title = "Czas [s]", Minimum = 0, Maximum = 60 };
+            var yAxis = new LinearAxis { Position = AxisPosition.Left, Title = "Liczba zjedzonych rzeczy", Minimum = 0, Maximum = 100 };
+
+            plotModel.Axes.Add(xAxis);
+            plotModel.Axes.Add(yAxis);
         }
 
-        public void AddDataPoint(double time, int itemCount)
+        public void AddDataPoint(double time, double itemCount)
         {
             _series.Points.Add(new DataPoint(time, itemCount));
             _plotView.InvalidatePlot(true);
