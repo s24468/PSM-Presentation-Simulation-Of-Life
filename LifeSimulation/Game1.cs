@@ -4,19 +4,19 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace DotAndSquares
+namespace LifeSimulation
 {
     public class Game1 : Game
     {
-        private GraphicsDeviceManager _graphics;
+        private readonly GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
-        private Dot dot;
-        private List<Square> squares;
-        private Random random;
+        private Dot _dot;
+        private List<Square> _squares;
+        private Random _random;
 
-        private double squareSpawnTimer;
-        private double squareSpawnInterval = 2000;
+        private double SquareSpawnTimer { get; set; }
+        private const double SquareSpawnInterval = 2000;
 
         public Game1()
         {
@@ -29,10 +29,10 @@ namespace DotAndSquares
         {
             base.Initialize();
 
-            dot = new Dot(_graphics.GraphicsDevice);
-            squares = new List<Square>();
-            random = new Random();
-            squareSpawnTimer = 0;
+            _dot = new Dot(_graphics.GraphicsDevice);
+            _squares = new List<Square>();
+            _random = new Random();
+            SquareSpawnTimer = 0;
         }
 
         protected override void LoadContent()
@@ -45,20 +45,20 @@ namespace DotAndSquares
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            dot.Update(gameTime);
+            _dot.Update(gameTime);
 
-            foreach (var square in squares)
+            foreach (var square in _squares)
             {
                 square.Update(gameTime);
             }
 
-            squares.RemoveAll(square => dot.Bounds.Intersects(square.Bounds));
+            _squares.RemoveAll(square => _dot.Bounds.Intersects(square.Bounds));
 
-            squareSpawnTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (squareSpawnTimer > squareSpawnInterval)
+            SquareSpawnTimer += gameTime.ElapsedGameTime.TotalMilliseconds;
+            if (SquareSpawnTimer > SquareSpawnInterval)
             {
                 SpawnSquare();
-                squareSpawnTimer = 0;
+                SquareSpawnTimer = 0;
             }
 
             base.Update(gameTime);
@@ -69,8 +69,8 @@ namespace DotAndSquares
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-            dot.Draw(_spriteBatch);
-            foreach (var square in squares)
+            _dot.Draw(_spriteBatch);
+            foreach (var square in _squares)
             {
                 square.Draw(_spriteBatch);
             }
@@ -81,10 +81,10 @@ namespace DotAndSquares
 
         private void SpawnSquare()
         {
-            int x = random.Next(0, _graphics.PreferredBackBufferWidth - Square.Size);
-            int y = random.Next(0, _graphics.PreferredBackBufferHeight - Square.Size);
+            int x = _random.Next(0, _graphics.PreferredBackBufferWidth - Square.Size);
+            int y = _random.Next(0, _graphics.PreferredBackBufferHeight - Square.Size);
 
-            squares.Add(new Square(_graphics.GraphicsDevice, new Vector2(x, y)));
+            _squares.Add(new Square(_graphics.GraphicsDevice, new Vector2(x, y)));
         }
     }
 }

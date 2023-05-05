@@ -1,19 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+namespace LifeSimulation;
+
 public class Square
 {
     public static int Size = 20;
 
-    private Vector2 position;
-    private Texture2D texture;
+    private readonly Vector2 _position;
+    private readonly Texture2D _texture;
 
-    public Rectangle Bounds => new Rectangle((int)position.X, (int)position.Y, Size, Size);
+    public Rectangle Bounds => new Rectangle((int)_position.X, (int)_position.Y, Size, Size);
 
     public Square(GraphicsDevice graphicsDevice, Vector2 position)
     {
-        this.position = position;
-        texture = CreateTexture(graphicsDevice);
+        this._position = position;
+        _texture = CreateTexture(graphicsDevice);
     }
 
     public void Update(GameTime gameTime)
@@ -22,7 +24,7 @@ public class Square
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(texture, position, Color.Red);
+        spriteBatch.Draw(_texture, _position, Color.Red);
     }
 
     private Texture2D CreateTexture(GraphicsDevice graphicsDevice)
