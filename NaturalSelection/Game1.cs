@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NaturalSelection;
 
@@ -68,19 +69,32 @@ public class Game1 : Game
         SpawnFood(50);
     }
 
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
+        MessageId = "type: Entry[System.String,System.Single][]; size: 150MB")]
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
+        MessageId = "type: System.Collections.Generic.Dictionary`2[System.String,System.Single]; size: 128MB")]
+    [SuppressMessage("ReSharper.DPA", "DPA0003: Excessive memory allocations in LOH",
+        MessageId = "type: NaturalSelection.Bacteria[]; size: 57MB")]
+    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
+        MessageId = "type: System.Collections.Generic.Dictionary`2[System.String,System.Single]; size: 129MB")]
+    [SuppressMessage("ReSharper.DPA", "DPA0003: Excessive memory allocations in LOH",
+        MessageId = "type: NaturalSelection.Bacteria[]; size: 64MB")]
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
         _timeSinceLastBacteriaAdded += (float)gameTime.ElapsedGameTime.Milliseconds;
-        _timeSinceLastFoodAdded += (float)gameTime.ElapsedGameTime.Milliseconds/2;
+        _timeSinceLastFoodAdded += (float)gameTime.ElapsedGameTime.Milliseconds / 2;
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
+        var _random = new Random();
 
         for (int i = _bacteriaList.Count - 1; i >= 0; i--)
         {
             Bacteria bacteria = _bacteriaList[i];
             bacteria.MoveSmoothly(elapsedTime);
+            bacteria.Update(elapsedTime);
+
             bacteria.CheckBounds();
             bacteria.UpdateHunger(elapsedTime);
             // Sprawdzanie kolizji z jedzeniem
@@ -94,13 +108,48 @@ public class Game1 : Game
                 }
             }
 
+            // Sprawdzanie kolizji z innymi bakteriami
+
+            for (int j = i - 1; j >= 0; j--)
+            {
+                Bacteria otherBacteria = _bacteriaList[j];
+                if (bacteria.Intersects(otherBacteria) && bacteria.ReproductionCooldown <= 0 &&
+                    otherBacteria.ReproductionCooldown <= 0)
+                {
+                    Vector2 newPosition1 = bacteria.Position + new Vector2(bacteria.Size / 2 + 1, 0);
+                    Vector2 newPosition2 = bacteria.Position - new Vector2(bacteria.Size / 2 + 1, 0);
+
+                    float size = _random.Next(15, 20);
+                    ;
+                    var color = new Color(_random.Next(0, 256), _random.Next(0, 256), _random.Next(0, 256));
+                    float speed = _random.Next(1, 10) / 20f;
+                    float hunger = _random.Next(5000, 10000);
+                    float newReproductionCooldown = 1500.0f; // Ustaw okres ochronny po reprodukcji
+
+                    _bacteriaList.Add(new Bacteria(newPosition1, size, speed, color,
+                        new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } }, hunger,
+                        newReproductionCooldown));
+                    size = _random.Next(15, 20);
+                    ;
+                    color = new Color(_random.Next(0, 256), _random.Next(0, 256), _random.Next(0, 256));
+                    speed = _random.Next(1, 10) / 20f;
+                    hunger = _random.Next(5000, 10000);
+                    _bacteriaList.Add(new Bacteria(newPosition2, size, speed, color,
+                        new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } }, hunger,
+                        newReproductionCooldown));
+
+                    bacteria.ReproductionCooldown = newReproductionCooldown;
+                    otherBacteria.ReproductionCooldown = newReproductionCooldown;
+                    break; // Przerwij wewnętrzną pętlę, aby uniknąć nadmiernego rozmnażania
+                }
+            }
+
             if (bacteria.Hunger <= 0)
             {
                 _bacteriaList.RemoveAt(i);
             }
         }
 
-        var _random = new Random();
         if (_timeSinceLastBacteriaAdded >= _minTimeBetweenBacteria)
         {
             Vector2 vector2 = new Vector2(_random.Next(0, _graphics.PreferredBackBufferWidth),
@@ -110,18 +159,19 @@ public class Game1 : Game
             var color = new Color(_random.Next(0, 256), _random.Next(0, 256), _random.Next(0, 256));
             float speed = _random.Next(1, 10) / 20f;
             float hunger = _random.Next(5000, 10000);
+            float newReproductionCooldown = 5.0f; // Ustaw okres ochronny po reprodukcji
 
             _bacteriaList.Add(new Bacteria(vector2, size, speed, color,
-                new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } }, hunger));
+                new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } }, hunger,
+                newReproductionCooldown));
             _timeSinceLastBacteriaAdded = 0f; // zresetuj czas od ostatniego dodania bakterii
         }
 
         if (_timeSinceLastFoodAdded >= _minTimeBetweenBacteria)
         {
-            int foodCount = _random.Next(5, 20);
+            int foodCount = _random.Next(20, 30);
             SpawnFood(foodCount);
             _timeSinceLastFoodAdded = 0f; // zresetuj czas od ostatniego dodania bakterii
-
         }
 
         base.Update(gameTime);

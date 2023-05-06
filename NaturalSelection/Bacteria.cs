@@ -14,10 +14,13 @@ public class Bacteria
     public float Speed { get; set; }
     public Color Color { get; set; }
     public Dictionary<string, float> Genes { get; set; }
+    
+    public float ReproductionCooldown { get; set; }
 
     public Vector2 Direction { get; set; }
-    
-    public Bacteria(Vector2 position, float size, float speed, Color color, Dictionary<string, float> genes, float hunger)
+
+    public Bacteria(Vector2 position, float size, float speed, Color color, Dictionary<string, float> genes,
+        float hunger, float reproductionCooldown)
     {
         Position = position;
         Size = size;
@@ -26,12 +29,24 @@ public class Bacteria
         Genes = genes;
         Direction = new Vector2((float)(new Random().NextDouble() * 2 - 1), (float)(new Random().NextDouble() * 2 - 1));
         Hunger = hunger; // Przykładowa wartość początkowa dla głodu
+        ReproductionCooldown = reproductionCooldown;
+    }
+    public void Update(float elapsedTime)
+    {
+        ReproductionCooldown -= elapsedTime;
+    }
+
+    public bool Intersects(Bacteria other)
+    {
+        float distance = Vector2.Distance(Position, other.Position);
+        return distance <= (Size / 2 + other.Size / 2);
     }
 
     public void UpdateHunger(float elapsedTime)
     {
         Hunger -= elapsedTime * 2.0f; // Wartość 2.0f to przykładowa prędkość spadku głodu
     }
+
     public bool Intersects(Food food)
     {
         float distance = Vector2.Distance(Position, food.Position);
