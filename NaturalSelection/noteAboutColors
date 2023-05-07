@@ -1,0 +1,15 @@
+﻿
+
+R-> im większy 
+
+        
+        Dictionary<string, float> dictionary =
+            new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } };
+
+        var color = new Color(_random.Next(0, 256), _random.Next(0, 256), _random.Next(0, 256));
+        float speed = _random.Next(1, 10) / 20f;
+        float hunger = _random.Next(5000, 10000);
+        float size = _random.Next(15, 20);
+        
+        Dictionary<string, float> dictionary =
+            new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } };

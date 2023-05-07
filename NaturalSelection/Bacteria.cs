@@ -4,7 +4,6 @@ using System.Collections.Generic;
 namespace NaturalSelection;
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework;
 
 public class Bacteria
 {
@@ -13,7 +12,7 @@ public class Bacteria
     public float Size { get; set; }
     public float Speed { get; set; }
     public Color Color { get; set; }
-    public Dictionary<string, float> Genes { get; set; }
+    public Dictionary<string, float> Genes { get; set; }//mnożnik
     
     public float ReproductionCooldown { get; set; }
 
@@ -38,7 +37,7 @@ public class Bacteria
 
     public bool Intersects(Bacteria other)
     {
-        float distance = Vector2.Distance(Position, other.Position);
+        var distance = Vector2.Distance(Position, other.Position);
         return distance <= (Size / 2 + other.Size / 2);
     }
 
@@ -56,10 +55,10 @@ public class Bacteria
     public void MoveSmoothly(float deltaTime)
     {
         // Aktualizuj kierunek
-        float rotationSpeed = 0.2f; // Wartość regulująca szybkość zmiany kierunku
-        float angle = (float)(new Random().NextDouble() * 2 * Math.PI * rotationSpeed - Math.PI * rotationSpeed);
-        float cos = (float)Math.Cos(angle);
-        float sin = (float)Math.Sin(angle);
+        var rotationSpeed = 0.2f; // Wartość regulująca szybkość zmiany kierunku
+        var angle = (float)(new Random().NextDouble() * 2 * Math.PI * rotationSpeed - Math.PI * rotationSpeed);
+        var cos = (float)Math.Cos(angle);
+        var sin = (float)Math.Sin(angle);
 
         Direction = new Vector2(
             Direction.X * cos - Direction.Y * sin,
