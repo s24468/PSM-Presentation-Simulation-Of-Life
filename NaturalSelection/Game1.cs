@@ -66,83 +66,31 @@ public class Game1 : Game
 
         _foodTexture = new Texture2D(GraphicsDevice, 1, 1);
         _foodTexture.SetData(new[] { Color.White });
-        SpawnFood(50);
+        var _random = new Random();
+        RandomlySpawnFood(_random);
     }
 
-    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
-        MessageId = "type: Entry[System.String,System.Single][]; size: 150MB")]
-    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
-        MessageId = "type: System.Collections.Generic.Dictionary`2[System.String,System.Single]; size: 128MB")]
-    [SuppressMessage("ReSharper.DPA", "DPA0003: Excessive memory allocations in LOH",
-        MessageId = "type: NaturalSelection.Bacteria[]; size: 57MB")]
-    [SuppressMessage("ReSharper.DPA", "DPA0002: Excessive memory allocations in SOH",
-        MessageId = "type: System.Collections.Generic.Dictionary`2[System.String,System.Single]; size: 129MB")]
-    [SuppressMessage("ReSharper.DPA", "DPA0003: Excessive memory allocations in LOH",
-        MessageId = "type: NaturalSelection.Bacteria[]; size: 64MB")]
+
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-            Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
-        _timeSinceLastBacteriaAdded += (float)gameTime.ElapsedGameTime.Milliseconds;
+        _timeSinceLastBacteriaAdded += (float)gameTime.ElapsedGameTime.Milliseconds * 4;
         _timeSinceLastFoodAdded += (float)gameTime.ElapsedGameTime.Milliseconds / 2;
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
         var _random = new Random();
 
         for (int i = _bacteriaList.Count - 1; i >= 0; i--)
         {
-            Bacteria bacteria = _bacteriaList[i];
+            var bacteria = _bacteriaList[i];
             bacteria.MoveSmoothly(elapsedTime);
             bacteria.Update(elapsedTime);
 
             bacteria.CheckBounds();
             bacteria.UpdateHunger(elapsedTime);
             // Sprawdzanie kolizji z jedzeniem
-            for (int j = _foodList.Count - 1; j >= 0; j--)
-            {
-                Food food = _foodList[j];
-                if (bacteria.Intersects(food))
-                {
-                    _foodList.RemoveAt(j); // Usuwanie jedzenia z listy
-                    bacteria.Hunger += 50; // Zwiększenie wartości głodu bakterii (dostosuj wartość według potrzeb)
-                }
-            }
+            CheckCollisionsBacteriasWithFood(bacteria);
 
             // Sprawdzanie kolizji z innymi bakteriami
-
-            for (int j = i - 1; j >= 0; j--)
-            {
-                Bacteria otherBacteria = _bacteriaList[j];
-                if (bacteria.Intersects(otherBacteria) && bacteria.ReproductionCooldown <= 0 &&
-                    otherBacteria.ReproductionCooldown <= 0)
-                {
-                    Vector2 newPosition1 = bacteria.Position + new Vector2(bacteria.Size / 2 + 1, 0);
-                    Vector2 newPosition2 = bacteria.Position - new Vector2(bacteria.Size / 2 + 1, 0);
-
-                    float size = _random.Next(15, 20);
-                    ;
-                    var color = new Color(_random.Next(0, 256), _random.Next(0, 256), _random.Next(0, 256));
-                    float speed = _random.Next(1, 10) / 20f;
-                    float hunger = _random.Next(5000, 10000);
-                    float newReproductionCooldown = 1500.0f; // Ustaw okres ochronny po reprodukcji
-
-                    _bacteriaList.Add(new Bacteria(newPosition1, size, speed, color,
-                        new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } }, hunger,
-                        newReproductionCooldown));
-                    size = _random.Next(15, 20);
-                    ;
-                    color = new Color(_random.Next(0, 256), _random.Next(0, 256), _random.Next(0, 256));
-                    speed = _random.Next(1, 10) / 20f;
-                    hunger = _random.Next(5000, 10000);
-                    _bacteriaList.Add(new Bacteria(newPosition2, size, speed, color,
-                        new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } }, hunger,
-                        newReproductionCooldown));
-
-                    bacteria.ReproductionCooldown = newReproductionCooldown;
-                    otherBacteria.ReproductionCooldown = newReproductionCooldown;
-                    break; // Przerwij wewnętrzną pętlę, aby uniknąć nadmiernego rozmnażania
-                }
-            }
+            CheckCollisionsBacteriasWithOtherBacterias(i, bacteria, _random);
 
             if (bacteria.Hunger <= 0)
             {
@@ -150,31 +98,97 @@ public class Game1 : Game
             }
         }
 
+        RandomlyAddBacteria(_random);
+
+        RandomlySpawnFood(_random);
+
+        base.Update(gameTime);
+    }
+
+    private void RandomlySpawnFood(Random _random)
+    {
+        if (_timeSinceLastFoodAdded >= _minTimeBetweenBacteria)
+        {
+            var foodCount = _random.Next(30, 40);
+
+
+            for (int i = 0; i < foodCount; i++)
+            {
+                var position = new Vector2(_random.Next(Game1.ScreenWidth), _random.Next(Game1.ScreenHeight));
+                _foodList.Add(new Food(position, 10f, Color.Black));
+            }
+
+            _timeSinceLastFoodAdded = 0f; // zresetuj czas od ostatniego dodania bakterii
+        }
+    }
+
+    private void RandomlyAddBacteria(Random _random)
+    {
         if (_timeSinceLastBacteriaAdded >= _minTimeBetweenBacteria)
         {
             Vector2 vector2 = new Vector2(_random.Next(0, _graphics.PreferredBackBufferWidth),
                 _random.Next(0, _graphics.PreferredBackBufferHeight));
 
-            float size = _random.Next(15, 20);
-            var color = new Color(_random.Next(0, 256), _random.Next(0, 256), _random.Next(0, 256));
-            float speed = _random.Next(1, 10) / 20f;
-            float hunger = _random.Next(5000, 10000);
             float newReproductionCooldown = 5.0f; // Ustaw okres ochronny po reprodukcji
 
-            _bacteriaList.Add(new Bacteria(vector2, size, speed, color,
-                new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } }, hunger,
-                newReproductionCooldown));
+            _bacteriaList.Add(GetNewBacteria(vector2, newReproductionCooldown, _random));
             _timeSinceLastBacteriaAdded = 0f; // zresetuj czas od ostatniego dodania bakterii
         }
+    }
 
-        if (_timeSinceLastFoodAdded >= _minTimeBetweenBacteria)
+    private void CheckCollisionsBacteriasWithFood(Bacteria bacteria)
+    {
+        for (int j = _foodList.Count - 1; j >= 0; j--)
         {
-            int foodCount = _random.Next(20, 30);
-            SpawnFood(foodCount);
-            _timeSinceLastFoodAdded = 0f; // zresetuj czas od ostatniego dodania bakterii
+            Food food = _foodList[j];
+            if (bacteria.Intersects(food))
+            {
+                _foodList.RemoveAt(j); // Usuwanie jedzenia z listy
+                bacteria.Hunger += 50; // Zwiększenie wartości głodu bakterii (dostosuj wartość według potrzeb)
+            }
         }
+    }
 
-        base.Update(gameTime);
+    private void CheckCollisionsBacteriasWithOtherBacterias(int i, Bacteria bacteria, Random _random)
+    {
+        for (int j = i - 1; j >= 0; j--)
+        {
+            var otherBacteria = _bacteriaList[j];
+            if (bacteria.Intersects(otherBacteria) && bacteria.ReproductionCooldown <= 0 &&
+                otherBacteria.ReproductionCooldown <= 0)
+            {
+                var newPosition1 = bacteria.Position + new Vector2(bacteria.Size / 2 + 1, 0);
+                var newPosition2 = bacteria.Position - new Vector2(bacteria.Size / 2 + 1, 0);
+                const float newReproductionCooldown = 1500.0f; // Ustaw okres ochronny po reprodukcji
+
+                for (int k = 0; k < 2; k++)
+                {
+                    if (k == 0)
+                    {
+                        _bacteriaList.Add(GetNewBacteria(newPosition1, newReproductionCooldown, _random));
+                    }
+                    else
+                    {
+                        _bacteriaList.Add(GetNewBacteria(newPosition2, newReproductionCooldown, _random));
+                    }
+                }
+
+                bacteria.ReproductionCooldown = newReproductionCooldown;
+                otherBacteria.ReproductionCooldown = newReproductionCooldown;
+                break; // Przerwij wewnętrzną pętlę, aby uniknąć nadmiernego rozmnażania
+            }
+        }
+    }
+
+    private static Bacteria GetNewBacteria(Vector2 newPosition1, float newReproductionCooldown, Random _random)
+    {
+        float size = _random.Next(15, 20);
+        var color = new Color(_random.Next(0, 256), _random.Next(0, 256), _random.Next(0, 256));
+        float speed = _random.Next(1, 10) / 20f;
+        float hunger = _random.Next(5000, 10000);
+        return new Bacteria(newPosition1, size, speed, color,
+            new Dictionary<string, float> { { "speed", 4000f }, { "size", 50f } }, hunger,
+            newReproductionCooldown);
     }
 
     protected override void Draw(GameTime gameTime)
@@ -200,15 +214,32 @@ public class Game1 : Game
 
         base.Draw(gameTime);
     }
-
-    private void SpawnFood(int count)
-    {
-        Random random = new Random();
-
-        for (int i = 0; i < count; i++)
-        {
-            Vector2 position = new Vector2(random.Next(Game1.ScreenWidth), random.Next(Game1.ScreenHeight));
-            _foodList.Add(new Food(position, 10f, Color.Black));
-        }
-    }
 }
+
+// public class GeneratingMethods
+// {
+//     private void RandomlySpawnFood(Random _random, float _timeSinceLastFoodAdded, float _minTimeBetweenBacteria,
+//         List<Food> _foodList)
+//     {
+//         if (_timeSinceLastFoodAdded >= _minTimeBetweenBacteria)
+//         {
+//             var foodCount = _random.Next(30, 40);
+//             
+//             for (int i = 0; i < foodCount; i++)
+//             {
+//                 var position = new Vector2(_random.Next(Game1.ScreenWidth), _random.Next(Game1.ScreenHeight));
+//                 _foodList.Add(new Food(position, 10f, Color.Black));
+//             }
+//
+//             _timeSinceLastFoodAdded = 0f; // zresetuj czas od ostatniego dodania bakterii
+//         }
+//     }
+// }
+//
+// public class CheckingMethods
+// {
+//     private Random _random = new Random();
+//     private int i;
+//     private Bacteria _bacteria;
+//     private Vector2 position;
+// }
