@@ -33,14 +33,27 @@ public static class CheckingMethods
                 var newPosition1 = bacteria.Position + new Vector2(bacteria.Size / 2 + 1, 0);
                 var newPosition2 = bacteria.Position - new Vector2(bacteria.Size / 2 + 1, 0);
 
-                bacteriaList.Add(
-                    GeneratingMethods.GetNewBacteria(newPosition1, newReproductionCooldown, random));
+                int numberOfNewBacteria = random.Next(1, 6); // Wybierz losową liczbę nowych bakterii od 1 do 5
+                for (int k = 0; k < numberOfNewBacteria; k++)
+                {
+                    
+                    // Przekazuj geny rodziców do potomstwa z pewnym stopniem mutacji
+                    Dictionary<string, float> childGenes = new Dictionary<string, float>();
 
-                bacteriaList.Add(
-                    GeneratingMethods.GetNewBacteria(newPosition2, newReproductionCooldown, random));
+                    foreach (var gene in bacteria.Genes)
+                    {
+                        float mutation = (float)(random.NextDouble() * 0.1 - 0.05); // losowa mutacja -5% do 5%
+                        float parentGeneValue = (random.NextDouble() > 0.5) ? bacteria.Genes[gene.Key] : otherBacteria.Genes[gene.Key];
+                        childGenes[gene.Key] = MathHelper.Clamp(parentGeneValue + mutation * parentGeneValue, 0, bacteria.MaxGeneValue);
+                    }
+
+                    var childBacteria = GeneratingMethods.GetNewBacteriaWithGenes(random.Next(2) == 0 ? newPosition1 : newPosition2, newReproductionCooldown, random, childGenes);
+                    bacteriaList.Add(childBacteria);
+                }
 
                 bacteria.ReproductionCooldown = newReproductionCooldown;
                 otherBacteria.ReproductionCooldown = newReproductionCooldown;
+                
             }
         }
     }

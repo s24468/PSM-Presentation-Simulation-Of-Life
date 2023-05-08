@@ -12,24 +12,60 @@ public class Bacteria
     public float Size { get; set; }
     public float Speed { get; set; }
     public Color Color { get; set; }
-    public Dictionary<string, float> Genes { get; set; }//mnożnik
-    
+    public Dictionary<string, float> Genes { get; set; } //mnożnik
+
     public float ReproductionCooldown { get; set; }
+
+
+    // Dodaj te nowe właściwości
+    public float MaxGeneValue { get; }
+    public float GeneSum { get; }
+
 
     public Vector2 Direction { get; set; }
 
+
+    // float speed = _random.Next(1, 10) / 20f; 0.05 - 0.5:: 1-100
+    // float size = _random.Next(15, 20);10- 20:: 1-100
+    // float hunger = _random.Next(5000, 10000); 1-100
+
+    // int minValue = 1;
+    // int maxValue = 100;
+    // int newMinValue = 10;
+    // int newMaxValue = 20;
+    // int randomNumber = random.Next(minValue, maxValue + 1);
+    // double scaledValue = ((double)randomNumber - minValue) / (maxValue - minValue) * (newMaxValue - newMinValue) + newMinValue;
+    //scaledValue = hunger-1
     public Bacteria(Vector2 position, float size, float speed, Color color, Dictionary<string, float> genes,
-        float hunger, float reproductionCooldown)
+        float hunger, float reproductionCooldown, float maxGeneValue, float geneSum)
     {
         Position = position;
-        Size = size;
-        Speed = speed;
+        Speed = speed / 200;
+        Size = (size - 1) / (100 - 1) * (20 - 10) + 10;
+        Hunger = (hunger - 1) / (100 - 1) *(10000-5000)+ 5000; // Przykładowa wartość początkowa dla głodu
         Color = color;
         Genes = genes;
         Direction = new Vector2((float)(new Random().NextDouble() * 2 - 1), (float)(new Random().NextDouble() * 2 - 1));
-        Hunger = hunger; // Przykładowa wartość początkowa dla głodu
         ReproductionCooldown = reproductionCooldown;
+
+        // Inicjalizuj nowe właściwości
+        MaxGeneValue = maxGeneValue;
+        GeneSum = geneSum;
+
+        // Przeskaluj geny, aby ich suma była równa GeneSum
+        Genes = new Dictionary<string, float>();
+        float currentSum = 0;
+        foreach (var gene in genes)
+        {
+            currentSum += gene.Value;
+        }
+
+        foreach (var gene in genes)
+        {
+            Genes[gene.Key] = (gene.Value / currentSum) * GeneSum;
+        }
     }
+
     public void Update(float elapsedTime)
     {
         ReproductionCooldown -= elapsedTime;

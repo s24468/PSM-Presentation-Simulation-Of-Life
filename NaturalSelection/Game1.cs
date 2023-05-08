@@ -1,10 +1,9 @@
 ﻿using System;
-
-namespace NaturalSelection;
-
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
+namespace NaturalSelection;
 
 public class Game1 : Game
 {
@@ -21,6 +20,9 @@ public class Game1 : Game
     private float _timeSinceLastFoodAdded;
 
     private const float MinTimeBetweenBacteria = 1000f; // minimalny czas od ostatniego dodania bakterii w milisekundach
+
+    private const int MaxBacteriaCount = 300; // Ustaw dowolną wartość, którą uważasz za odpowiednią
+    private bool _simulationStopped = false;
 
     public static readonly int ScreenWidth = 1400;
     public static readonly int ScreenHeight = 800;
@@ -59,44 +61,57 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
-        _timeSinceLastBacteriaAdded += (float)gameTime.ElapsedGameTime.Milliseconds * 4;
-        _timeSinceLastFoodAdded += (float)gameTime.ElapsedGameTime.Milliseconds / 2;
-        var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        var _random = new Random();
-
-
-        for (var i = _bacteriaList.Count - 1; i >= 0; i--)
+        if (!_simulationStopped)
         {
-            var bacteria = _bacteriaList[i];
-            bacteria.MoveSmoothly(elapsedTime);
-            bacteria.Update(elapsedTime);
-
-            bacteria.CheckBounds();
-            bacteria.UpdateHunger(elapsedTime);
+            _timeSinceLastBacteriaAdded += (float)gameTime.ElapsedGameTime.Milliseconds * 4;
+            _timeSinceLastFoodAdded += (float)gameTime.ElapsedGameTime.Milliseconds / 2;
+            var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
+            var _random = new Random();
 
 
-            // Sprawdzanie kolizji z jedzeniem
-            CheckingMethods.CheckCollisionsBacteriasWithFood(bacteria, _foodList);
-            // Sprawdzanie kolizji z innymi bakteriami
-            CheckingMethods.CheckCollisionsBacteriasWithOtherBacterias(i, bacteria, _bacteriaList, _random);
-
-            if (bacteria.Hunger <= 0)
+            for (var i = _bacteriaList.Count - 1; i >= 0; i--)
             {
-                _bacteriaList.RemoveAt(i);
+                var bacteria = _bacteriaList[i];
+                bacteria.MoveSmoothly(elapsedTime);
+                bacteria.Update(elapsedTime);
+
+                bacteria.CheckBounds();
+                bacteria.UpdateHunger(elapsedTime);
+
+
+                // Sprawdzanie kolizji z jedzeniem
+                CheckingMethods.CheckCollisionsBacteriasWithFood(bacteria, _foodList);
+                // Sprawdzanie kolizji z innymi bakteriami
+                CheckingMethods.CheckCollisionsBacteriasWithOtherBacterias(i, bacteria, _bacteriaList, _random);
+
+                if (bacteria.Hunger <= 0)
+                {
+                    _bacteriaList.RemoveAt(i);
+                }
             }
+
+            GeneratingMethods.RandomlySpawnFood(ref _timeSinceLastFoodAdded, MinTimeBetweenBacteria, _foodList,
+                _random);
+            GeneratingMethods.RandomlyAddBacteria(ref _timeSinceLastBacteriaAdded, MinTimeBetweenBacteria, _graphics,
+                _bacteriaList, _random);
         }
+        if (_bacteriaList.Count >= MaxBacteriaCount)
+        {
+            _simulationStopped = true;
+        }
+   
 
-
-        GeneratingMethods.RandomlySpawnFood(ref _timeSinceLastFoodAdded, MinTimeBetweenBacteria, _foodList,
-            _random);
-        GeneratingMethods.RandomlyAddBacteria(ref _timeSinceLastBacteriaAdded, MinTimeBetweenBacteria, _graphics,
-            _bacteriaList, _random);
         base.Update(gameTime);
     }
 
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
+
+        // if (_bacteriaList.Count >= MaxBacteriaCount)
+        // {
+        //     return; // Jeśli liczba bakterii przekroczyła próg, zatrzymaj aktualizację, ale nie zamykaj aplikacji
+        // }
 
         _spriteBatch.Begin();
 
