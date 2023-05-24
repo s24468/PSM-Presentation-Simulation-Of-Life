@@ -1,0 +1,8 @@
+﻿Ok, I wanted to create this kind of program, but I have this difficult task. I want to create a very simple drawing of monster, which is circle  and:
+- with one eye in the middle (which indicates vision, so how much territory can see and find food etc.)
+-size (has to eat more food if it is larger)
+- color (more warm color is more eager to duplicate and the number of children is bigger)
+- little two lines, which supposed to be legs(if legs are shorter, it is slower)
+- little two lines, which supposed to be arms (it can harm other predators. larger is more harmful)
+
+
