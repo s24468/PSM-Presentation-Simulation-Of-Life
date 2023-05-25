@@ -11,16 +11,16 @@ public class Monster
 
     // You can add more attributes as you need
 
-    public string LegImagePath { get; set; }
-    public string EyeImagePath { get; set; }
-    public Monster(float vision, float hunger, float speed, float size, string legImagePath, string eyeImagePath)
+    // public string LegImagePath { get; set; }
+    // public string EyeImagePath { get; set; }
+    public Monster(float vision, float hunger, float speed, float size)//, string legImagePath, string eyeImagePath
     {
         Vision = vision;
         Hunger = hunger;
         Speed = speed;
         Size = size;
 
-        LegImagePath = legImagePath;
-        EyeImagePath = eyeImagePath;
+        // LegImagePath = legImagePath;
+        // EyeImagePath = eyeImagePath;
     }
 }

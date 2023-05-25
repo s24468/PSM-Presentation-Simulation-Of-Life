@@ -1,0 +1,50 @@
+﻿
+
+
+
+
+
+
+
+
+draw:
+
+        // Adjust the size and position of the parts as necessary
+        // For example, you could make the legs larger if the monster's Speed attribute increases
+        
+        
+        Vector2 legPosition = new Vector2(0, 0);
+        Vector2 legSize = new Vector2(myMonster.Speed, myMonster.Speed);
+        spriteBatch.Draw(monsterLegTexture, new Rectangle(legPosition.ToPoint(), legSize.ToPoint()), Color.White);
+
+        // spriteBatch.Draw(monsterTexture, new Vector2(0, 0), Color.White);
+        
+        
+        
+        
+        
+        
+        
+LOAD content:
+ // Create a new Monster
+
+        // Create a new Monster
+        
+        // Load the Monster image
+        // monsterTexture = Content.Load<Texture2D>(myMonster.ImagePath);
+        // Load the Monster images
+        // monsterLegTexture = Content.Load<Texture2D>(myMonster.LegImagePath);
+        // monsterEyeTexture = Content.Load<Texture2D>(myMonster.EyeImagePath);
+        // Texture2D texture;
+        // using var stream = new FileStream(myMonster.LegImagePath, FileMode.Open);
+        // monsterLegTexture = Texture2D.FromStream(GraphicsDevice, stream);
+        // Load the Monster images
+        using (var stream = new FileStream(myMonster.LegImagePath, FileMode.Open))
+        {
+            monsterLegTexture = Texture2D.FromStream(GraphicsDevice, stream);
+        }
+
+        using (var stream = new FileStream(myMonster.EyeImagePath, FileMode.Open))
+        {
+            monsterEyeTexture = Texture2D.FromStream(GraphicsDevice, stream);
+        }

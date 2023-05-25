@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NaturalSelection", "Natural
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MacroEvolution", "MacroEvolution\MacroEvolution.csproj", "{04964195-9A78-4BDB-AEE5-8682695D8E48}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvolutionSimulation", "EvolutionSimulation\EvolutionSimulation.csproj", "{26066AEB-9906-4503-8E14-638A85E1A9A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{04964195-9A78-4BDB-AEE5-8682695D8E48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04964195-9A78-4BDB-AEE5-8682695D8E48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04964195-9A78-4BDB-AEE5-8682695D8E48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26066AEB-9906-4503-8E14-638A85E1A9A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26066AEB-9906-4503-8E14-638A85E1A9A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26066AEB-9906-4503-8E14-638A85E1A9A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26066AEB-9906-4503-8E14-638A85E1A9A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
